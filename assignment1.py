@@ -83,6 +83,8 @@ if __name__ == "__main__":
 #!/usr/bin/env python3
 # Author ID: JoyOtchere
 
+from datetime import datetime  # Add this import to use datetime functions
+
 def leap_year(year):
     # Check if a year is a leap year
     return (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
@@ -117,5 +119,55 @@ def after(date):
             month = 1
             year += 1
     return f"{year:04d}-{month:02d}-{day:02d}"
+
+# Checks if a given date is valid (in YYYY-MM-DD format)
+def valid_date(date):
+    try:
+        datetime.strptime(date, "%Y-%m-%d")  # Attempt to parse the date
+        return True
+    except ValueError:
+        return False
+
+# Given a date, returns the name of the day of the week
+def day_of_week(year, month, day):
+    if month < 3:
+        month += 12
+        year -= 1
+    k = year % 100
+    j = year // 100
+    f = day + ((13 * (month + 1)) // 5) + k + (k // 4) + (j // 4) - (2 * j)
+    day_name_index = f % 7
+    days = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    return days[day_name_index]
+
+# Counts weekends (Saturday and Sunday) between two dates
+def day_count(start_date, end_date):
+    weekends = 0
+    current_date = start_date
+    
+    while current_date <= end_date:
+        year, month, day = map(int, current_date.split('-'))
+        
+        # Get the day of the week
+        day_name = day_of_week(year, month, day)  # Renamed variable to avoid conflict
+        
+        # Count weekends (Saturday or Sunday)
+        if day_name == "Saturday" or day_name == "Sunday":
+            weekends += 1
+        
+        # Move to the next day
+        current_date = after(current_date)
+    
+    return weekends
+
+
+# Test cases
+if __name__ == "__main__":
+    # Test the functions
+    print(valid_date("2023-06-19"))  # Should return True
+    print(valid_date("2023-02-29"))  # Should return False
+    print(day_count("2023-06-19", "2023-12-03"))  # Should return the number of weekends
+        
+
 
 
