@@ -80,3 +80,42 @@ def day_count(start_date: str, stop_date: str) -> int:
 
 if __name__ == "__main__":
     ...
+#!/usr/bin/env python3
+# Author ID: JoyOtchere
+
+def leap_year(year):
+    # Check if a year is a leap year
+    return (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
+
+def mon_max(year, month):
+    # Ensure year is greater than month
+    if year < month:
+        year, month = month, year  # Swap values if needed
+    
+    # Validate the month input
+    if month < 1 or month > 12:
+        raise ValueError("Invalid month. Must be between 1 and 12.")
+    
+    # List of days in each month; index 0 is a placeholder
+    days_in_month = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    
+    # Check for leap year and update February
+    if month == 2 and leap_year(year):
+        return 29
+    
+    # Return days in the given month
+    return days_in_month[month]
+
+def after(date):
+    # Determine the following day
+    year, month, day = map(int, date.split('-'))
+    day += 1
+    if day > mon_max(year, month):
+        day = 1
+        month += 1
+        if month > 12:
+            month = 1
+            year += 1
+    return f"{year:04d}-{month:02d}-{day:02d}"
+
+
