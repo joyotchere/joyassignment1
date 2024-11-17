@@ -83,91 +83,53 @@ if __name__ == "__main__":
 #!/usr/bin/env python3
 # Author ID: JoyOtchere
 
-from datetime import datetime  # Add this import to use datetime functions
+import sys
+from datetime import datetime, timedelta # Add this import to use datetime functions
 
-def leap_year(year):
-    # Check if a year is a leap year
-    return (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
 
-def mon_max(year, month):
-    # Ensure year is greater than month
-    if year < month:
-        year, month = month, year  # Swap values if needed
-    
-    # Validate the month input
-    if month < 1 or month > 12:
-        raise ValueError("Invalid month. Must be between 1 and 12.")
-    
-    # List of days in each month; index 0 is a placeholder
-    days_in_month = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    
-    # Check for leap year and update February
-    if month == 2 and leap_year(year):
-        return 29
-    
-    # Return days in the given month
-    return days_in_month[month]
-
-def after(date):
-    # Determine the following day
-    year, month, day = map(int, date.split('-'))
-    day += 1
-    if day > mon_max(year, month):
-        day = 1
-        month += 1
-        if month > 12:
-            month = 1
-            year += 1
-    return f"{year:04d}-{month:02d}-{day:02d}"
-
-# Checks if a given date is valid (in YYYY-MM-DD format)
-def valid_date(date):
-    try:
-        datetime.strptime(date, "%Y-%m-%d")  # Attempt to parse the date
-        return True
-    except ValueError:
-        return False
-
-# Given a date, returns the name of the day of the week
-def day_of_week(year, month, day):
-    if month < 3:
-        month += 12
-        year -= 1
-    k = year % 100
-    j = year // 100
-    f = day + ((13 * (month + 1)) // 5) + k + (k // 4) + (j // 4) - (2 * j)
-    day_name_index = f % 7
-    days = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-    return days[day_name_index]
-
-# Counts weekends (Saturday and Sunday) between two dates
-def day_count(start_date, end_date):
+def count_weekends(start_date, end_date):
+    """Counts weekend days (Saturday and Sunday) between two dates."""
     weekends = 0
     current_date = start_date
-    
     while current_date <= end_date:
-        year, month, day = map(int, current_date.split('-'))
-        
-        # Get the day of the week
-        day_name = day_of_week(year, month, day)  # Renamed variable to avoid conflict
-        
-        # Count weekends (Saturday or Sunday)
-        if day_name == "Saturday" or day_name == "Sunday":
+        if current_date.weekday() == 5 or current_date.weekday() == 6:  # Saturday or Sunday
             weekends += 1
-        
-        # Move to the next day
-        current_date = after(current_date)
-    
+        current_date += timedelta(days=1)
     return weekends
 
+def main():
+    # Ensure there are exactly 2 arguments
+    if len(sys.argv) != 3:
+        print("Usage: python3 script.py <start_date> <end_date>")
+        sys.exit(1)
 
-# Test cases
+    start_date_str = sys.argv[1]
+    end_date_str = sys.argv[2]
+
+    try:
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+    except ValueError:
+        # Instead of a custom error message, print the usage message
+        print("Usage: python3 script.py <start_date> <end_date>")
+        sys.exit(1)
+
+    # Handle reversed dates
+    if start_date > end_date:
+        start_date, end_date = end_date, start_date
+
+    # Count weekends
+    weekends = count_weekends(start_date, end_date)
+
+    # Print the result in the required format
+    print(f"The period between {start_date.strftime('%Y-%m-%d')} and {end_date.strftime('%Y-%m-%d')} includes {weekends} weekend days.")
+
 if __name__ == "__main__":
-    # Test the functions
-    print(valid_date("2023-06-19"))  # Should return True
-    print(valid_date("2023-02-29"))  # Should return False
-    print(day_count("2023-06-19", "2023-12-03"))  # Should return the number of weekends
-        
+    main()
+
+
+
+
 
 
 
